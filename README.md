@@ -43,7 +43,7 @@ From this, the following equivalence emerges:
 
 When $N$ is not prime, the tiling is irregular and shows patterns resembling the fractal-like structures typically observed in Pascal's triangle modulo $q$.
 
-The proof of this conjecture is currently under verification. If confirmed, the Pascal Tiling Conjecture would become a theorem.
+The proof of this conjecture is currently under review. After this review, the Pascal Tiling Conjecture will become a theorem.
 
 [Introduction_EN](./introduction_EN.ipynb)
 
@@ -92,6 +92,6 @@ Il en découle l'équivalence suivante:
 
 Lorsque $N$ n'est pas premier, la Damier est irrégulier et laisse apparaître une structure proche des structures fractales habituellement observées avec le triangle de Pascal modulo q.
 
-La démonstration de cette conjecture est en cours de vérification. Si elle se confirme la conjecture du Damier de Pascal deviendra un théorème.
+Cette demonstration est soumise à une relecture. À l'issue de cette relecture, cette conjecture deviendra un théorème.
 
 [Introduction_FR](./introduction_FR.ipynb)
