@@ -47,6 +47,9 @@ def damier_pascal_B(N,Fmod=False):
 def damier_pascal_S(N,Fmod=False):
     return damier_pascal_A(N,Fmod=Fmod)+damier_pascal_B(N,Fmod=Fmod)
 
+def damier_pascal_W(N,Fmod=False):
+    return damier_pascal_A(N,Fmod=Fmod)-damier_pascal_B(N,Fmod=Fmod)
+
 def damier_pascal_D(N,Fmod=False):
     return np.minimum(1,np.mod(damier_pascal_S(N,Fmod=Fmod),N))
     
@@ -94,3 +97,35 @@ def AffichageDamierPascal(N):
         plt.gca().xaxis.set_label_position('top')   
     plt.show()
      
+def Affiche(M,Fij=False,Fneg=False,Nmod=None):
+    if Nmod==None:
+        Nmod=M.shape[0]
+        if Fneg:
+            print("!!! Default Use Nmod=",Nmod,"for centered mod !!!")
+    if Fij!=False:
+        print("Fij=",Fij)
+    for i in range(M.shape[0]):
+        fstring=f'i={i:2} | '
+        for j in range(i+1):
+            Flag=Fij==False
+            Flag=Flag or (Fij=="pair" and (i+j)%2==0)
+            Flag=Flag or (Fij=="impair" and (i+j)%2==1)
+            Flag= Flag or (type(Fij)==type(1) and i+j==Fij)
+            Flag= Flag or (type(Fij)==type([]) and i+j in Fij)
+            if Flag :
+                if not Fneg:
+                    fstring+=f'{M[i,j]:2} '
+                else:
+                    #if M[i,j]>=(Nmod//2):
+                    #    fstring+=f'{M[i,j]-Nmod:3} '
+                    #else:
+                    #    fstring+=f'{M[i,j]:3} '  
+                    fstring+=f'{centered_mod(M[i,j],Nmod):3} '  
+            else:
+                fstring+=f'{"  .":3} '
+        print(fstring)
+    print()
+    
+def centered_mod(x, N):
+    r = ((x % N) + N/2) % N - N/2
+    return int(r) if r == int(r) else r
