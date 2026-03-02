@@ -2,6 +2,7 @@ from sympy import isprime,factorint
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+from sympy import binomial
 
 # On utilise le type object pour que les calculs soit avec des 
 # des ints aussi long que nécessaire sauf si 
@@ -49,6 +50,14 @@ def damier_pascal_S(N,Fmod=False):
 
 def damier_pascal_W(N,Fmod=False):
     return damier_pascal_A(N,Fmod=Fmod)-damier_pascal_B(N,Fmod=Fmod)
+
+def damier_pascal_X(N,Fmod=False):
+    i, j = np.indices((N, N))
+    return damier_pascal_A(N,Fmod=Fmod)-(-1)**(i+j)*damier_pascal_B(N,Fmod=Fmod)
+
+def damier_pascal_Y(N,Fmod=False):
+    i, j = np.indices((N, N))
+    return damier_pascal_A(N,Fmod=Fmod)+(-1)**(i+j)*damier_pascal_B(N,Fmod=Fmod)
 
 def damier_pascal_D(N,Fmod=False):
     return np.minimum(1,np.mod(damier_pascal_S(N,Fmod=Fmod),N))
@@ -129,3 +138,160 @@ def Affiche(M,Fij=False,Fneg=False,Nmod=None):
 def centered_mod(x, N):
     r = ((x % N) + N/2) % N - N/2
     return int(r) if r == int(r) else r
+
+def Aij(i,j,N=-1):
+    if j<=i:
+        return binomial(i,j)
+    else:
+        return Aij(j,i,N)
+def Bij(i,j,N):
+    if j<=i:
+        return binomial(N-1-j,i-j)
+    else:
+        return Bij(j,i,N)
+    
+def Sij(i,j,N):
+    if j<=i:
+        return Aij(i,j,N)+Bij(i,j,N)
+    else:
+        return Sij(j,i,N)
+def Wij(i,j,N):
+    if j<=i:
+        return Aij(i,j,N)-Bij(i,j,N)
+    else:
+        return Wij(j,i,N)
+
+def Xij(i,j,N,Flag=True):
+    if j<=i:
+        if Flag:
+            return binomial(i,i-j)-binomial(i-N,i-j)
+        else:
+            return Aij(i,j,N)-(-1)**(i-j)*Bij(i,j,N)
+    else:
+        return Xij(j,i,N)
+def Yij(i,j,N,Flag=True):
+    if j<=i:
+        if Flag:
+            return binomial(i,i-j)+binomial(i-N,i-j)
+        else:
+            return Aij(i,j,N)+(-1)**(i-j)*Bij(i,j,N)
+    else:
+        return Yij(j,i,N)
+    
+# same but from decomposition (i,j) <= (i-1,j-1) (i-1,j)
+def Aijbis(i,j,N=-1):
+    if j<=i:
+        if j==0 or i==j:
+            return 1
+        else:
+            return Aijbis(i-1,j-1,N)+Aijbis(i-1,j,N)
+    else:
+        return Aijbis(j,i,N)
+    
+def Bijbis(i,j,N):
+    if j<=i:
+        if j==0:
+            return binomial(N-1,i)   
+        elif i==j:
+            return 1
+        else:
+            return Bijbis(i-1,j-1,N)-Bijbis(i-1,j,N)
+    else:
+        return Bijbis(j,i,N)
+
+def Sijbis(i,j,N):
+    if j<=i:
+        if j==0:
+            return 1+binomial(N-1,i)
+        elif i==j:
+            return 2
+        else:
+            return Sijbis(i-1,j-1,N)+Wijbis(i-1,j,N)
+    else:
+        return Sijbis(j,i,N)
+def Wijbis(i,j,N):
+    if j<=i:
+        if j==0:
+            return 1-binomial(N-1,i)
+        elif i==j:
+            return 0 
+        else:
+            return Wijbis(i-1,j-1,N)+Sijbis(i-1,j,N)
+    else:
+        return Wijbis(j,i,N)
+    
+def Xijbis(i,j,N):
+    if j<=i:
+        if j==0:
+            return 1-binomial(i-N,i)
+        elif i==j:
+            return 0
+        else:
+            return Xijbis(i-1,j-1,N)+Xijbis(i-1,j,N)
+    else:
+        return Xijbis(j,i,N)
+    
+def Yijbis(i,j,N):
+    if j<=i:
+        if j==0:
+            return 1+binomial(i-N,i)
+        elif i==j:
+            return 2
+        else:
+            return Yijbis(i-1,j-1,N)+Yijbis(i-1,j,N)
+    else:
+        return Yijbis(j,i,N)
+    
+# autres formules de récurrence
+
+def SWrecurrence(i,j,N,Fint=True):
+    if j>i:
+        return SWrecurrence(j,i,N,Fint=Fint)
+    elif i==(N-1) and j==0:
+        return 2,0
+    elif i+j>N-1:
+        sij,wij=SWrecurrence(N-1-j,N-1-i,N,Fint=Fint)
+        return sij,-wij
+    else:
+        sij,wij=SWrecurrence(i,j,N-1,Fint=Fint)
+        if Fint:
+            bi=N-1-i
+            bj=N-1-j
+            sn=sij*(bi+bj)+wij*(bi-bj)
+            wn=sij*(bi-bj)+wij*(bi+bj)
+            d=2*bi
+            if (sn%d==0) and (wn%d==0): # on vérifie que le numération
+                return sn//d,wn//d
+            else:
+                print("ERROR SWrecurrence")
+                return -1
+        else:
+            b=(N-1-j)/(N-1-i)
+            return 0.5*sij*(1+b)+0.5*wij*(1-b),0.5*sij*(1-b)+0.5*wij*(1+b)
+def XYrecurrence(i,j,N,Fint=True):
+    if j>i:
+        return XYrecurrence(j,i,N,Fint=Fint)
+    elif i==(N-1) and j==0:
+        if N%2==0:
+            return 2,0
+        else:
+            return 0,2
+    elif i+j>N-1:
+        xij,yij=XYrecurrence(N-1-j,N-1-i,N,Fint=Fint)
+        return abs(xij),abs(yij)
+    else:
+        xij,yij=XYrecurrence(i,j,N-1,Fint=Fint)
+        if Fint:
+            bi=N-1-i
+            bj=N-1-j
+            xn=xij*(bi+bj)+yij*(bi-bj)
+            yn=xij*(bi-bj)+yij*(bi+bj)
+            d=2*bi
+            if (xn%d==0) and (yn%d==0): # on vérifie que le numération
+                return xn//d,yn//d
+            else:
+                print("ERROR SWrecurrence")
+                return -1
+        else:
+            b=(N-1-j)/(N-1-i)
+            return 0.5*xij*(1+b)+0.5*yij*(1-b),0.5*xij*(1-b)+0.5*yij*(1+b)
